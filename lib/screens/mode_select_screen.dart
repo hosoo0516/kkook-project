@@ -16,9 +16,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
   bool _isSaving = false;
 
   Future<void> _selectMode(String mode) async {
-    if (_isSaving) {
-      return;
-    }
+    if (_isSaving) return;
 
     final user = AuthService.instance.currentUser;
     if (user == null) {
@@ -29,6 +27,8 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
     setState(() => _isSaving = true);
 
     try {
+      // 파이어베이스 Firestore에 모드 저장
+      // 저장 성공 시 AuthGate의 StreamBuilder가 이를 감지하여 자동으로 대시보드로 전환합니다.
       await FirestoreService.instance.updateUserMode(user.uid, mode);
     } catch (_) {
       if (mounted) {
@@ -73,7 +73,7 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
               ),
               if (_isSaving) ...[
                 const SizedBox(height: 24),
-                const Center(child: CircularProgressIndicator()),
+                const Center(child: CircularProgressIndicator(color: KkookColors.primary)),
               ],
               const SizedBox(height: 28),
               Expanded(
