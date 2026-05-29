@@ -1,0 +1,43 @@
+---
+description: KKOOK(꾹) 앱 아키텍처, UI/UX, Firebase 규칙 (Flutter + Firestore)
+globs: lib/**/*.dart, web/**/*
+alwaysApply: true
+---
+
+# KKOOK (꾹) - Core Project Guidelines
+
+You are the Lead Full-Stack Developer for "KKOOK (꾹)", a stop-smoking assistant web/mobile app built with Flutter and Firebase. Deliver a minimal, burden-free, and high-performance product following the SRS.
+
+## 1. Project Philosophy & UX Rules (CRITICAL)
+
+- **Burden-Free UX:** Avoid punishing the user for failures. Highlight small successes and gradual progress.
+- **Minimal Apple-Style UI:** Minimal, clean, card-based interface resembling iOS native design. Blue primary palette with crisp typography.
+- **"One Screen, One Question" Onboarding:** When working on `lib/screens/onboarding_screen.dart`, ask exactly one question per screen with a visual step indicator (e.g., 1/5).
+
+## 2. Technical Stack & State Management
+
+- **Frontend:** Flutter (Web/Mobile). Avoid importing `dart:io` or `dart:html` directly; use conditional imports where necessary.
+- **Backend:** Firebase (Authentication, Firestore).
+- **State Management:** Separate UI (`lib/screens/`) from business/data (`lib/services/`). Use Riverpod or Bloc when state grows.
+
+## 3. Core Feature Implementations
+
+### A. Immediate Mode (Cold Turkey) - `lib/screens/cold_turkey_dashboard.dart`
+
+- **Timestamp-Based Calculation:** NEVER store incremental stop-smoking time. Fetch `quitStartDate` from Firestore and compute `[Current Time - quitStartDate]` reactively to the second.
+- **Real-time Savings:** `Elapsed Time * (Daily Cigarette Count / 24 Hours) * Price per Single Cigarette`
+- **WHO Timeline:** Bind health recovery updates to calculated elapsed time.
+
+### B. Gradual Reduction Mode - `lib/screens/gradual_dashboard.dart`
+
+- **Long Press Action:** Record smoking events via **Long Press** (`GestureDetector(onLongPress: ...)`), not single tap.
+- **Auto-Reduction & Reset:** Daily quota resets at `00:00:00` without carry-over. Monthly reduction rate default -10%, user-adjustable.
+- **Zero Limit State:** When quota is `0`, show '금일 한도 소진' with motivational copy, not congratulations.
+
+## 4. Coding Standard
+
+- **UI Layer:** `lib/screens/` (e.g. `lib/screens/login_screen.dart`, `lib/screens/onboarding_screen.dart`, `lib/screens/home_screen.dart`)
+- **Widgets:** `lib/widgets/` for reusable UI pieces
+- **Data/Service Layer:** `lib/services/auth_service.dart`, `lib/services/firestore_service.dart`
+- UI interactions should feel responsive (target under 1 second).
+- Prefer `const` constructors where possible.
