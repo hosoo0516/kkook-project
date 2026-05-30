@@ -27,12 +27,13 @@ class _ModeSelectScreenState extends State<ModeSelectScreen> {
     setState(() => _isSaving = true);
 
     try {
-      // 파이어베이스 Firestore에 모드 저장
-      // 저장 성공 시 AuthGate의 StreamBuilder가 이를 감지하여 자동으로 대시보드로 전환합니다.
       await FirestoreService.instance.updateUserMode(user.uid, mode);
     } catch (_) {
       if (mounted) {
         _showMessage('모드 저장에 실패했습니다.');
+      }
+    } finally {
+      if (mounted) {
         setState(() => _isSaving = false);
       }
     }

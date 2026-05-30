@@ -28,40 +28,29 @@ class AuthGate extends StatelessWidget {
           return const LoginScreen();
         }
 
-        return StreamBuilder<UserConfig?>(
-          stream: FirestoreService.instance.watchUserConfig(user.uid),
-          builder: (context, configSnapshot) {
-            if (configSnapshot.connectionState == ConnectionState.waiting) {
+        return StreamBuilder<AppRoute>(
+          stream: FirestoreService.instance.watchAppRoute(user.uid),
+          builder: (context, routeSnapshot) {
+            if (routeSnapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               );
             }
 
-            final config = configSnapshot.data;
-
-            // 1. 온보딩 데이터 없음
-            if (config == null || !config.isOnboardingCompleted) {
-              return OnboardingScreen(user: user);
+            switch (routeSnapshot.data ?? AppRoute.onboarding) {
+              case AppRoute.onboarding:
+                return OnboardingScreen(user: user);
+              case AppRoute.modeSelect:
+                return const ModeSelectScreen();
+              case AppRoute.coldTurkey:
+                return ColdTurkeyDashboard(
+                  key: ValueKey('cold-turkey-${user.uid}'),
+                );
+              case AppRoute.gradual:
+                return GradualDashboard(
+                  key: ValueKey('gradual-${user.uid}'),
+                );
             }
-
-            final mode = config.currentMode;
-
-            // 2. 온보딩 완료, 모드 미선택
-            if (mode == null || mode.isEmpty) {
-              return const ModeSelectScreen();
-            }
-
-            // 3. 바로 금연 모드
-            if (mode == UserMode.coldTurkey) {
-              return const ColdTurkeyDashboard();
-            }
-
-            // 4. 서서히 줄이기 모드
-            if (mode == UserMode.gradual) {
-              return const GradualDashboard();
-            }
-
-            return const ModeSelectScreen();
           },
         );
       },
